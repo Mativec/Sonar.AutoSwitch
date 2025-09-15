@@ -1,5 +1,8 @@
-﻿using Sonar.AutoSwitch.Services;
+﻿using Avalonia.Controls;
+using Sonar.AutoSwitch.Services;
 using Sonar.AutoSwitch.Services.Win32;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Sonar.AutoSwitch.ViewModels;
 
@@ -7,6 +10,29 @@ public class SettingsViewModel : ViewModelBase
 {
     private bool _enabled = true;
     private bool _startAtStartup = true;
+    private MonitorOption? _selectedMonitor;
+
+    public SettingsViewModel()
+    {
+        var screens = new Window().Screens.All;
+        var monitors = new List<MonitorOption>();
+
+        for (int i = 0; i < screens.Count; i++)
+        {
+            var screen = screens[i];
+            // Create a name, marking the primary screen
+            var name = $"Monitor {i + 1} ({screen.Bounds.Width}x{screen.Bounds.Height})";
+            if (screen.IsPrimary)
+                name += " [Primary]";
+
+            monitors.Add(new MonitorOption(name, screen));
+        }
+
+        // Default to "Any"
+        monitors.Insert(0, new MonitorOption("Any", null));
+        AvailableMonitors = new ObservableCollection<MonitorOption>(monitors);
+        SelectedMonitor = AvailableMonitors[0];
+    }
 
     public bool Enabled
     {
@@ -33,6 +59,19 @@ public class SettingsViewModel : ViewModelBase
     }
 
     public bool UseGithubConfigs { get; set; } = true;
+
+    public ObservableCollection<MonitorOption> AvailableMonitors { get; }
+
+    public MonitorOption? SelectedMonitor
+    {
+        get => _selectedMonitor;
+        set
+        {
+            if (_selectedMonitor == value) return;
+            _selectedMonitor = value;
+            OnPropertyChanged();
+        }
+    }
 
     protected override void OnPropertyChanged(string? propertyName = null)
     {
