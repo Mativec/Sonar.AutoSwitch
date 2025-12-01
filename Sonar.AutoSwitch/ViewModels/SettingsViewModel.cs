@@ -1,9 +1,9 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Threading;
 using Sonar.AutoSwitch.Services;
 using Sonar.AutoSwitch.Services.Win32;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-
 namespace Sonar.AutoSwitch.ViewModels;
 
 public class SettingsViewModel : ViewModelBase
@@ -15,7 +15,7 @@ public class SettingsViewModel : ViewModelBase
     public SettingsViewModel()
     {
         var screens = new Window().Screens.All;
-        var monitors = new List<MonitorOption>();
+        List<MonitorOption> monitors = new() { new MonitorOption("Any", null) };
 
         for (int i = 0; i < screens.Count; i++)
         {
@@ -28,10 +28,11 @@ public class SettingsViewModel : ViewModelBase
             monitors.Add(new MonitorOption(name, screen));
         }
 
-        // Default to "Any"
-        monitors.Insert(0, new MonitorOption("Any", null));
         AvailableMonitors = new ObservableCollection<MonitorOption>(monitors);
-        SelectedMonitor = AvailableMonitors[0];
+        Dispatcher.UIThread.Post(() =>
+        {
+            SelectedMonitor = monitors[0];
+        });
     }
 
     public bool Enabled

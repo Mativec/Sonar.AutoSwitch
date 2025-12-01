@@ -38,7 +38,8 @@
         <ui:SettingsExpander.Footer>
           <ScrollViewer Height="120" VerticalScrollBarVisibility="Auto">
             <ComboBox Items="{Binding AvailableMonitors}"
-                      SelectedItem="{Binding SelectedMonitor}"
+                      SelectedItem="{Binding SelectedMonitor, Mode=TwoWay}"
+                      SelectedIndex="0"
                       Width="200"/>
           </ScrollViewer>
         </ui:SettingsExpander.Footer>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sonar.AutoSwitch.ViewModels;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -57,17 +58,21 @@ public class Win32WindowEventManager : IWindowEventManager
     {
         ForegroundWindowChanged?.Invoke(this, e);
     }
-
     private void WindowEventCallback(nint hWinEventHook, uint eventType, nint hwnd, int idObject,
         int idChild, uint dwEventThread, uint dwmsEventTime)
     {
         string windowTitle = GetWindowTitle(hwnd);
+        var focusedScreen = StateManager.Instance.GetOrLoadState<SettingsViewModel>().SelectedMonitor;
+
+        if (focusedScreen?.Screen != null && !MonitorHelper.AreSameScreen(focusedScreen.Screen, MonitorHelper.GetScreenFromHwnd(hwnd)))
+            return;
         if (GetWindowThreadProcessId(hwnd, out var pid) == 0)
             return;
         string? exeName = null;
         try
         {
-            using var processById = Process.GetProcessById((int) pid);
+
+            using var processById = Process.GetProcessById((int)pid);
             string? fileName = processById.MainModule?.FileName;
             if (string.IsNullOrEmpty(fileName))
                 return;
