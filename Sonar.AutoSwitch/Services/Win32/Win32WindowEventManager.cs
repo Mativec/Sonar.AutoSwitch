@@ -66,9 +66,12 @@ public class Win32WindowEventManager : IWindowEventManager
 
         if (focusedScreen?.Screen != null && !MonitorHelper.AreSameScreen(focusedScreen.Screen, MonitorHelper.GetScreenFromHwnd(hwnd)))
             return;
-        if (GetWindowThreadProcessId(hwnd, out var pid) == 0)
-            return;
         string? exeName = null;
+        if (GetWindowThreadProcessId(hwnd, out var pid) == 0)
+        {
+            OnForegroundWindowChanged(new WindowInfo(exeName, windowTitle));
+            return;
+        }
         try
         {
 
