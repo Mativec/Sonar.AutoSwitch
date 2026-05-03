@@ -4,12 +4,14 @@ using Sonar.AutoSwitch.Services;
 using Sonar.AutoSwitch.Services.Win32;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
 namespace Sonar.AutoSwitch.ViewModels;
 
 public class SettingsViewModel : ViewModelBase
 {
     private bool _enabled = true;
     private bool _startAtStartup = true;
+    private int? _selectedMonitorId;
     private MonitorOption? _selectedMonitor;
 
     public SettingsViewModel()
@@ -31,7 +33,14 @@ public class SettingsViewModel : ViewModelBase
         AvailableMonitors = new ObservableCollection<MonitorOption>(monitors);
         Dispatcher.UIThread.Post(() =>
         {
-            SelectedMonitor = monitors[0];
+            if (_selectedMonitorId.HasValue)
+            {
+                SelectedMonitor = monitors.Find(m => m.Id == _selectedMonitorId.Value) ?? monitors[0];
+            }
+            else
+            {
+                SelectedMonitor = monitors[0];
+            }
         });
     }
 
@@ -61,8 +70,21 @@ public class SettingsViewModel : ViewModelBase
 
     public bool UseGithubConfigs { get; set; } = true;
 
+    public int? SelectedMonitorId
+    {
+        get => _selectedMonitorId;
+        set
+        {
+            if (_selectedMonitorId == value) return;
+            _selectedMonitorId = value;
+            OnPropertyChanged();
+        }
+    }
+
+    [JsonIgnore]
     public ObservableCollection<MonitorOption> AvailableMonitors { get; }
 
+    [JsonIgnore]
     public MonitorOption? SelectedMonitor
     {
         get => _selectedMonitor;
@@ -70,6 +92,7 @@ public class SettingsViewModel : ViewModelBase
         {
             if (_selectedMonitor == value) return;
             _selectedMonitor = value;
+            _selectedMonitorId = value?.Id;
             OnPropertyChanged();
         }
     }
