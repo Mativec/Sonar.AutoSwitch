@@ -23,7 +23,7 @@ public class SettingsViewModel : ViewModelBase
         {
             var screen = screens[i];
             // Create a name, marking the primary screen
-            var name = $"Monitor {i + 1} ({screen.Bounds.Width}x{screen.Bounds.Height})";
+            var name = $"Display {i + 1} ({screen.Bounds.Width}x{screen.Bounds.Height})";
             if (screen.IsPrimary)
                 name += " [Primary]";
 
